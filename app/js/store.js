@@ -1,35 +1,51 @@
-// Progress store: earned trophy ids kept in localStorage, with export and import.
-const STORAGE_KEY = 'leonida-trophy-progress-v1';
+// Saved progress: which trophies are earned, kept in the browser's
+// localStorage, plus export to a file and import back. Nothing leaves the
+// browser except the file the reader asks to download.
+const PROGRESS_KEY = 'leonida-trophy-progress-v1';
+const SETTINGS_KEY = 'leonida-trophy-settings-v1';
 
-export function loadEarned() {
+export function loadProgress() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return new Set();
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return new Set();
-    return new Set(parsed.filter((id) => Number.isInteger(id)));
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    const ids = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(ids) ? ids : []);
   } catch {
     return new Set();
   }
 }
 
-export function saveEarned(earned) {
+export function saveProgress(earned) {
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify([...earned].sort((a, b) => a - b)));
+}
+
+export function loadSettings() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...earned].sort((a, b) => a - b)));
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return { spoiler: !!parsed.spoiler, hideEarned: !!parsed.hideEarned };
   } catch {
-    // Storage full or unavailable: progress lives only for this visit.
+    return { spoiler: false, hideEarned: false };
   }
 }
 
-export function exportText(earned) {
-  return JSON.stringify({ app: 'leonida-trophy-guide', version: 1, earned: [...earned].sort((a, b) => a - b) }, null, 2);
+export function saveSettings(settings) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
 
-export function parseImport(text) {
-  const parsed = JSON.parse(text);
-  const list = Array.isArray(parsed) ? parsed : parsed.earned;
-  if (!Array.isArray(list)) throw new Error('Not a progress file');
-  const ids = list.filter((id) => Number.isInteger(id));
-  if (ids.length === 0 && list.length > 0) throw new Error('No trophy ids in file');
-  return new Set(ids);
+export function exportProgress(earned) {
+  const blob = new Blob([JSON.stringify({ app: 'leonida-trophy-guide', version: 1, earned: [...earned].sort((a, b) => a - b) }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'leonida-trophy-progress.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function importProgress(file) {
+  const text = await file.text();
+  const data = JSON.parse(text);
+  const ids = Array.isArray(data) ? data : data.earned;
+  if (!Array.isArray(ids)) throw new Error('That file holds no earned list.');
+  return new Set(ids.filter((n) => Number.isInteger(n)));
 }

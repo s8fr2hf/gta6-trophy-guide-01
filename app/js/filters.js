@@ -1,21 +1,49 @@
-// Filters: search, kind, grade, earned state, missable-only, and the spoiler rule.
-export function applyFilters(trophies, state, earned) {
-  const query = state.search.trim().toLowerCase();
+// Filters: by kind, by text, and the spoiler rule. A story trophy the reader
+// has not earned yet hides its name and description while spoiler-safe mode
+// is on; its grade and its guide stay hidden with it.
+export const KINDS = [
+  ['all', 'All kinds'],
+  ['story', 'Story'],
+  ['missable', 'Missable'],
+  ['side', 'Side strands'],
+  ['activity', 'Activities'],
+  ['collectible', 'Collectibles'],
+  ['combat', 'Combat & heists'],
+  ['exploration', 'Exploration'],
+  ['economy', 'Money'],
+  ['misc', 'Odd jobs'],
+  ['completion', '100% & platinum'],
+];
+
+export function kindOf(trophy) {
+  if (trophy.kind === 'platinum' || trophy.kind === 'completion') return 'completion';
+  return trophy.kind;
+}
+
+export function applyFilters(trophies, earned, { kind, query, hideEarned }) {
+  const q = query.trim().toLowerCase();
   return trophies.filter((t) => {
-    if (state.kind && t.kind !== state.kind) return false;
-    if (state.grade && t.grade !== state.grade) return false;
-    if (state.earned === 'earned' && !earned.has(t.id)) return false;
-    if (state.earned === 'unearned' && earned.has(t.id)) return false;
-    if (state.missableOnly && !t.missable) return false;
-    if (query) {
-      const hay = `${t.name} ${t.description} ${t.guide} ${t.kind}`.toLowerCase();
-      if (!hay.includes(query)) return false;
+    if (kind === 'missable') {
+      if (!t.missable) return false;
+    } else if (kind !== 'all' && kindOf(t) !== kind) {
+      return false;
     }
+    if (hideEarned && earned.has(t.id)) return false;
+    if (q && !(t.name + ' ' + t.description + ' ' + t.guide).toLowerCase().includes(q)) return false;
     return true;
   });
 }
 
-// A story trophy is masked while spoilers are hidden and it is not earned yet.
-export function isMasked(trophy, state, earned) {
-  return state.hideSpoilers && trophy.spoiler && !earned.has(trophy.id);
+export function isSpoilerHidden(trophy, earned, spoilerOn) {
+  return spoilerOn && trophy.kind === 'story' && !earned.has(trophy.id);
+}
+
+export function gradeCounts(trophies, earned) {
+  const counts = { platinum: [0, 0], gold: [0, 0], silver: [0, 0], bronze: [0, 0] };
+  for (const t of trophies) {
+    if (!counts[t.grade]) continue;
+    counts[t.grade][1] += 1;
+    if (earned.has(t.id)) counts[t.grade][0] += 1;
+  }
+  return counts;
 }
