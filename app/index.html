@@ -3,39 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leonida Trophy Guide — GTA 6, all 55 trophies</title>
-<meta name="description" content="Offline checklist and guide for all 55 Grand Theft Auto VI trophies on PlayStation 5: saved progress, filters, a spoiler setting, a roadmap to the platinum, and a cited guide for every trophy.">
+<title>Leonida Trophy Guide — GTA VI</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
+<header class="masthead">
+  <div>
     <h1>Leonida Trophy Guide</h1>
-    <p class="tagline">All 55 GTA 6 trophies on PlayStation 5 — tracker, roadmap and cited guides. Works offline.</p>
+    <p class="tagline">Every one of GTA VI's 55 PlayStation 5 trophies, with a guide to each, a roadmap to the platinum, and a tracker that remembers what you earned.</p>
   </div>
-  <div class="progress" id="progressBox" aria-live="polite">
-    <span class="big" id="earnedCount">0</span><span class="of">/ 55 earned</span>
-    <div class="bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
-    <p class="grades" id="gradeCounts"></p>
+  <div class="progress-box">
+    <div class="progress-line"><span id="progress-text">0 of 55 earned</span><span id="progress-pct">0%</span></div>
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+    <p class="platinum-note">Platinum: <strong>Vice Got a Price!</strong> — earn the other 54.</p>
   </div>
 </header>
 <nav class="tabs" aria-label="Guide sections">
-  <a href="#/" data-view="checklist">Checklist</a>
-  <a href="#/roadmap" data-view="roadmap">Roadmap</a>
-  <a href="#/missables" data-view="missables">Missables</a>
-  <a href="#/settings" data-view="settings">Settings &amp; export</a>
+  <a href="#/" data-tab="checklist">Checklist</a>
+  <a href="#/roadmap" data-tab="roadmap">Roadmap</a>
+  <a href="#/missables" data-tab="missables">Missables</a>
+  <a href="#/settings" data-tab="settings">Settings</a>
 </nav>
-<section class="toolbar" id="toolbar">
-  <label class="search">Search <input id="searchBox" type="search" placeholder="trophy name or word…" autocomplete="off"></label>
-  <label class="check"><input type="checkbox" id="hideEarned"> Hide earned</label>
-  <label class="check"><input type="checkbox" id="spoilerToggle"> Spoiler-safe: hide unearnt story trophies</label>
-  <div class="filters" id="kindFilters" role="group" aria-label="Filter by kind"></div>
-</section>
-<main id="view"></main>
-<aside id="detail" class="detail" hidden aria-label="Trophy guide"></aside>
-<footer class="foot">
-  <p>Official trophy names, descriptions and grades: Exophase trophy list, checked against PSNProfiles. Counts: PSNProfiles. Extra facts (meditation spots, shooting-range challenges, drone-race locations, garage count, platinum time): PowerPyx, GTABase, KeenGamer and FullSweep, named beside each guide. Gameplay advice is our own, drawn from the official descriptions, and marked unconfirmed where it is not yet checked in the released game. No Rockstar artwork or logo is used. Built for the make.fun bounty <a href="https://make.fun/bounty/gta6-trophy-guide-01">gta6-trophy-guide-01</a>.</p>
+<div class="toolbar">
+  <label>Search <input id="search" type="search" placeholder="Trophy name or guide word…" autocomplete="off"></label>
+  <label>Kind
+    <select id="kind">
+      <option value="all">All kinds</option>
+      <option value="story">Story</option>
+      <option value="missable">Missable</option>
+      <option value="collectibles">Collectibles</option>
+      <option value="activities">Activities</option>
+    </select>
+  </label>
+  <label>Grade
+    <select id="grade">
+      <option value="all">All grades</option>
+      <option value="platinum">Platinum</option>
+      <option value="gold">Gold</option>
+      <option value="silver">Silver</option>
+      <option value="bronze">Bronze</option>
+    </select>
+  </label>
+  <label class="spoiler-toggle"><input id="spoilers" type="checkbox"> Hide story trophies until earned</label>
+  <button id="export" type="button">Export progress</button>
+  <label class="import-btn">Import progress <input id="import" type="file" accept="application/json"></label>
+</div>
+<main class="layout">
+  <section id="view" aria-live="polite"></section>
+  <aside id="detail" aria-label="Trophy guide"></aside>
+</main>
+<footer>
+  <p>Sources: the official trophy names, descriptions and grades as Exophase and PSNProfiles list them; guide facts from PowerPyx, Push Square, KeenGamer, GTADB, gamemapa and WeHunt — each trophy names its source beside its guide. Methods no published guide has confirmed are marked unconfirmed. No Rockstar artwork is used; the look is this guide's own.</p>
+  <p>Progress is saved in your browser (localStorage) and never leaves it. Works offline: every file this page loads is one of its own.</p>
 </footer>
-<script type="module" src="js/main.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
